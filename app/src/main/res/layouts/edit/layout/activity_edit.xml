@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <!-- 涂鸦画布 -->
+    <FrameLayout
+        android:id="@+id/edit_fl_main"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_above="@+id/edit_hsl_bottom"/>
+
+    <HorizontalScrollView
+        android:id="@+id/edit_hsl_bottom"
+        android:layout_width="match_parent"
+        android:layout_height="70dp"
+        android:layout_alignParentBottom="true"
+        android:paddingBottom="5dp"
+        android:paddingTop="5dp"
+        android:scrollbars="none">
+
+        <LinearLayout
+            android:id="@+id/edit_ll_menu"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:orientation="horizontal"/>
+    </HorizontalScrollView>
+</RelativeLayout>
