@@ -42,12 +42,13 @@ android {
                     ]
         }
     }
-
-    dependencies {
-        compile fileTree(include: ['*.jar'], dir: 'libs')
-        compile 'com.android.support:appcompat-v7:25.3.1'
-        compile 'com.jakewharton:butterknife:8.4.0'
-        apt 'com.jakewharton:butterknife-compiler:8.4.0'
-        compile project(':frame')
-    }
+}
+dependencies {
+    compile fileTree(include: ['*.jar'], dir: 'libs')
+    compile 'com.android.support:appcompat-v7:25.3.1'
+    compile 'com.jakewharton:butterknife:8.4.0'
+    apt 'com.jakewharton:butterknife-compiler:8.4.0'
+    compile project(':frame')
+    // litepal
+    compile 'org.litepal.android:core:1.5.1'
 }

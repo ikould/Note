@@ -1,6 +1,7 @@
 package com.ikould.note.welcome;
 
 import android.os.Bundle;
+import android.util.Log;
 
 import com.ikould.frame.activity.BaseActivity;
 import com.ikould.note.R;
@@ -24,9 +25,11 @@ public class WelcomeActivity extends BaseActivity {
      * 初始化配置
      */
     private void initConfig() {
+        Log.d("WelcomeActivity", "initConfig: ");
         mContentView.postDelayed(new Runnable() {
             @Override
             public void run() {
+                Log.d("WelcomeActivity", "run: ");
                 // 跳转到MainActivity
                 redirectActivity(MainActivity.class, true);
             }

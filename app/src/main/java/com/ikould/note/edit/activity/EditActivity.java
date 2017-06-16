@@ -14,6 +14,7 @@ import com.ikould.frame.utils.DensityUtil;
 import com.ikould.note.R;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -28,7 +29,7 @@ public class EditActivity extends BaseActivity implements View.OnClickListener {
     @BindView(R.id.edit_fl_main)
     FrameLayout          editFlMain;
 
-    private ArrayList <ImageView> mBackImgList;
+    private ArrayList<ImageView> mBackImgList;
 
     @Override
     protected void onBaseCreate(Bundle savedInstanceState) {
