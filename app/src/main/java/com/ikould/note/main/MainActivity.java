@@ -16,5 +16,6 @@ public class MainActivity extends BaseActivity {
     @Override
     protected void onBaseCreate(Bundle savedInstanceState) {
         setBaseContentView(R.layout.activity_welcome);
+
     }
 }
