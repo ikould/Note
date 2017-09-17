@@ -8,7 +8,7 @@ import java.io.DataOutputStream;
 /**
  * 申请root权限工具
  * <p>
- * Created by liudong on 2016/6/29.
+ * Created by ikould on 2016/6/29.
  */
 public class RootUtil {
     /**

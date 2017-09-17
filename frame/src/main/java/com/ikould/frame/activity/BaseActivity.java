@@ -1,28 +1,34 @@
 package com.ikould.frame.activity;
 
 import android.content.Intent;
+import android.content.pm.ActivityInfo;
 import android.graphics.Color;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.LayoutRes;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 
+import com.ikould.frame.R;
 import com.ikould.frame.utils.KeyBoardUtils;
+
+import java.util.Stack;
 
 /**
  * Activity基类
  * <p>
- * Created by liudong on 2017/5/31.
+ * Created by ikould on 2017/5/31.
  */
 public abstract class BaseActivity extends AppCompatActivity {
 
-    public View mContentView;
+    public View contentView;
 
     protected abstract void onBaseCreate(Bundle savedInstanceState);
 
@@ -33,7 +39,11 @@ public abstract class BaseActivity extends AppCompatActivity {
         ActionBar actionBar = getSupportActionBar();
         if (actionBar != null)
             actionBar.hide();
+        if (lifeListener != null)
+            lifeListener.onLifeCall(OnActivityLifeListener.ON_CREATE);
         onBaseCreate(savedInstanceState);
+        // 设置竖屏
+        setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
     }
 
     /**
@@ -42,7 +52,7 @@ public abstract class BaseActivity extends AppCompatActivity {
      * @return
      */
     protected void setBaseContentView(@LayoutRes int layoutId) {
-        mContentView = LayoutInflater.from(this).inflate(layoutId, null);
+        contentView = LayoutInflater.from(this).inflate(layoutId, null);
         setContentViewConfig();
     }
 
@@ -52,7 +62,7 @@ public abstract class BaseActivity extends AppCompatActivity {
      * @return
      */
     protected void setBaseContentView(View view) {
-        mContentView = view;
+        contentView = view;
         setContentViewConfig();
     }
 
@@ -60,7 +70,7 @@ public abstract class BaseActivity extends AppCompatActivity {
      * ContentView配置设置
      */
     private void setContentViewConfig() {
-        setContentView(mContentView);
+        setContentView(contentView);
     }
 
     /**
@@ -102,26 +112,114 @@ public abstract class BaseActivity extends AppCompatActivity {
      * @param clazz    跳转的Activity
      * @param tfFinish 当前Activity是否finish
      */
-    protected void redirectActivity(Class <? extends BaseActivity> clazz, boolean tfFinish) {
+    public void goToActivity(Class<? extends BaseActivity> clazz, boolean tfFinish) {
         Intent intent = new Intent(this, clazz);
         startActivity(intent);
         if (tfFinish) {
             finish();
         }
+        overridePendingTransition(R.anim.anim_in_right, R.anim.anim_out_left);
     }
+
+    private Stack<Fragment> fragmentStack;
 
     /**
      * 更换Fragment
      */
-    public void replaceFragment(int id, Fragment fragment, String tag) {
+    public void replaceFragment(int id, Fragment fragment, boolean isDoAnim) {
         FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
-        if (tag == null) {
-            fragmentTransaction.replace(id, fragment);
-        } else {
-            fragmentTransaction.replace(id, fragment, tag);
-            fragmentTransaction.addToBackStack(tag);
+        if (fragmentStack == null)
+            fragmentStack = new Stack<>();
+        if (isDoAnim) {
+            fragmentTransaction.setCustomAnimations(R.anim.anim_in_right, R.anim.anim_out_left);
         }
+        fragmentTransaction.replace(id, fragment);
+        fragmentStack.add(fragment);
+        Log.d("BaseActivity", "replaceFragment: fragmentStack.size = " + fragmentStack.size());
         KeyBoardUtils.closeKeyboard(this);
         fragmentTransaction.commitAllowingStateLoss();
+    }
+
+    /**
+     * 退出回退栈
+     *
+     * @return 是否有Fragment可以退出
+     */
+    public boolean popFragment(int id, boolean isDoAnim) {
+        Log.d("BaseActivity", "popFragment: fragmentStack.size() = " + fragmentStack.size());
+        if (fragmentStack.size() == 1) {
+            fragmentStack.remove(fragmentStack.lastElement());
+            return false;
+        }
+        if (fragmentStack.size() == 0)
+            return false;
+        FragmentManager fragmentManager = getSupportFragmentManager();
+        FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+        if (isDoAnim) {
+            fragmentTransaction.setCustomAnimations(R.anim.anim_in_left, R.anim.anim_out_right);
+        }
+        fragmentStack.remove(fragmentStack.lastElement());
+        fragmentTransaction.replace(id, fragmentStack.lastElement());
+        KeyBoardUtils.closeKeyboard(this);
+        fragmentTransaction.commitAllowingStateLoss();
+        return true;
+    }
+
+    /**
+     * 主动清空Fragment栈
+     */
+    public void clearFragmentStack() {
+        if (fragmentStack != null)
+            fragmentStack.clear();
+    }
+
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        if (lifeListener != null)
+            lifeListener.onLifeCall(OnActivityLifeListener.ON_START);
+    }
+
+    @Override
+    protected void onRestart() {
+        super.onRestart();
+        if (lifeListener != null)
+            lifeListener.onLifeCall(OnActivityLifeListener.ON_RESTART);
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        if (lifeListener != null)
+            lifeListener.onLifeCall(OnActivityLifeListener.ON_RESUME);
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        if (lifeListener != null)
+            lifeListener.onLifeCall(OnActivityLifeListener.ON_PAUSE);
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        if (lifeListener != null)
+            lifeListener.onLifeCall(OnActivityLifeListener.ON_STOP);
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        if (lifeListener != null)
+            lifeListener.onLifeCall(OnActivityLifeListener.ON_DESTROY);
+        lifeListener = null; // 销毁时主动置null
+    }
+
+    private OnActivityLifeListener lifeListener;
+
+    public void setOnActivityLifeListener(OnActivityLifeListener lifeListener) {
+        this.lifeListener = lifeListener;
     }
 }

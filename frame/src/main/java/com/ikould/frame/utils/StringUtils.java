@@ -1,5 +1,10 @@
 package com.ikould.frame.utils;
 
+import android.text.TextUtils;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.util.regex.Matcher;
@@ -264,7 +269,6 @@ public class StringUtils {
         if (isEmpty(s)) {
             return s;
         }
-
         char[] source = s.toCharArray();
         for (int i = 0; i < source.length; i++) {
             if (source[i] == ' ') {
@@ -278,5 +282,63 @@ public class StringUtils {
             }
         }
         return new String(source);
+    }
+
+    /**
+     * 获取双数，个位数前加0
+     *
+     * @param index
+     * @return
+     */
+    public static String getDoubleNumber(int index) {
+        if (index < 10)
+            return "0" + index;
+        return String.valueOf(index);
+    }
+
+    /**
+     * 将字符串数组转换以','分割的字符串
+     *
+     * @return
+     */
+    public static String getStringByArray(String[] strArrays) {
+        String resultStr = "";
+        if (strArrays != null)
+            for (int i = 0; i < strArrays.length; i++) {
+                String resource = strArrays[i];
+                resultStr += resource;
+                if (i != strArrays.length - 1) {
+                    resultStr += ",";
+                }
+            }
+        return resultStr;
+    }
+
+    /**
+     * 将以","分割的字符串转换为字符串数组
+     *
+     * @return
+     */
+    public static String[] getArraysByStr(String str) {
+        if (TextUtils.isEmpty(str)) {
+            return null;
+        }
+        return str.split(",");
+    }
+
+    /**
+     * 获取JSONArray字符串数据转换为','分割的字符串
+     */
+    public static String getStringFromJsonArray(JSONArray jsonArray) throws JSONException {
+        String resultStr = "";
+        if (jsonArray != null)
+            for (int i = 0; i < jsonArray.length(); i++) {
+                String resource = jsonArray.getString(i);
+                resultStr += resource;
+                if (i != jsonArray.length() - 1) {
+                    resultStr += ",";
+                }
+            }
+        return resultStr;
     }
 }

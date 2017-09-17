@@ -19,6 +19,8 @@ android {
         versionCode 1
         versionName "1.0"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
+
+        multiDexEnabled true
     }
 
     buildTypes {
@@ -36,6 +38,7 @@ android {
                             'src/main/res/layouts/material',
                             'src/main/res/layouts/set',
                             'src/main/res/layouts/show',
+                            'src/main/res/layouts/main',
                             'src/main/res/layouts/welcome',
                             'src/main/res/layouts',
                             'src/main/res'
@@ -49,6 +52,4 @@ dependencies {
     compile 'com.jakewharton:butterknife:8.4.0'
     apt 'com.jakewharton:butterknife-compiler:8.4.0'
     compile project(':frame')
-    // litepal
-    compile 'org.litepal.android:core:1.5.1'
 }

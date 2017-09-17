@@ -16,15 +16,15 @@ public class GenerateValueUtil {
 
     private String dirStr = "./res";
 
-    private final static String WTemplate = "<dimen name=\"x{0}\">{1}px</dimen>\n";
-    private final static String HTemplate = "<dimen name=\"y{0}\">{1}px</dimen>\n";
+    private final static String WTemplate = "<dimen name=\"xx_{0}\">{1}px</dimen>\n";
+    private final static String HTemplate = "<dimen name=\"yy_{0}\">{1}px</dimen>\n";
 
     /**
      * {0}-HEIGHT
      */
     private final static String VALUE_TEMPLATE = "values-{0}x{1}";
 
-    private static final String SUPPORT_DIMESION = "320,480;480,800;480,854;540,960;600,1024;720,1184;720,1196;720,1280;768,1024;800,1280;1080,1812;1080,1920;1440,2560;";
+    private static final String SUPPORT_DIMESION = "320,480;480,800;480,854;540,960;600,1024;720,1184;720,1196;720,1280;768,1024;800,1280;1080,1812;1080,1920;1080,1776;1080,1794;1440,2434;1440,2560;1080,2076;1080,2220;1080,2160;960,1920";
 
     private String supportStr = SUPPORT_DIMESION;
 
@@ -94,12 +94,10 @@ public class GenerateValueUtil {
         float cellw = w * 1.0f / baseW;
 
         System.out.println("width : " + w + "," + baseW + "," + cellw);
-        for (int i = 1; i < baseW; i++) {
+        for (int i = 1; i < baseH + 1; i++) {
             sbForWidth.append(WTemplate.replace("{0}", i + "").replace("{1}",
                     change(cellw * i) + ""));
         }
-        sbForWidth.append(WTemplate.replace("{0}", baseW + "").replace("{1}",
-                w + ""));
         sbForWidth.append("</resources>");
 
         StringBuffer sbForHeight = new StringBuffer();
@@ -140,8 +138,8 @@ public class GenerateValueUtil {
     }
 
     public static void main(String[] args) {
-        int baseW = 320;
-        int baseH = 400;
+        int baseW = 1080;
+        int baseH = 1920;
         String addition = "";
         try {
             if (args.length >= 3) {

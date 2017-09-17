@@ -4,9 +4,7 @@ import java.io.IOException;
 import java.io.OutputStream;
 
 /**
- * 执行android命令
- *
- * @author Yuedong Li
+ * 执行android命令，需要root
  */
 public class SuUtil {
 

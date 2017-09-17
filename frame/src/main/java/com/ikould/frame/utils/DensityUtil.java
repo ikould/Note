@@ -3,7 +3,8 @@ package com.ikould.frame.utils;
 import android.content.Context;
 
 /**
- * describe
+ * dp和像素转换工具
+ * <p>
  * Created by ikould on 2017/5/31.
  */
 
