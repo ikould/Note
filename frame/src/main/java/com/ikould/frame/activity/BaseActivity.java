@@ -2,14 +2,18 @@ package com.ikould.frame.activity;
 
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
+import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.LayoutRes;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
@@ -19,6 +23,10 @@ import android.view.View;
 import com.ikould.frame.R;
 import com.ikould.frame.utils.KeyBoardUtils;
 
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Set;
 import java.util.Stack;
 
 /**
@@ -29,6 +37,9 @@ import java.util.Stack;
 public abstract class BaseActivity extends AppCompatActivity {
 
     public View contentView;
+
+    // 权限
+    private Map<Integer, OnPermissionResultListener> permissionMap;
 
     protected abstract void onBaseCreate(Bundle savedInstanceState);
 
@@ -217,6 +228,62 @@ public abstract class BaseActivity extends AppCompatActivity {
         lifeListener = null; // 销毁时主动置null
     }
 
+    /**
+     * 权限申请
+     *
+     * @param permissions 权限
+     * @param listener    执行完毕后执行
+     */
+    public void checkPermission(String[] permissions, OnPermissionResultListener listener) {
+        boolean isRequest = false;
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            // 没有读写权限或者读取手机状态的权限则申请
+            for (String permission : permissions) {
+                if (ContextCompat.checkSelfPermission(this, permission) != PackageManager.PERMISSION_GRANTED) {
+                    isRequest = true;
+                    break;
+                }
+            }
+            if (isRequest) {
+                int code = 100;
+                if (permissionMap == null) {
+                    permissionMap = new HashMap<>();
+                } else {
+                    Set<Integer> integerSet = permissionMap.keySet();
+                    int max = code;
+                    for (int integer : integerSet) {
+                        if (integer > max)
+                            max = integer;
+                    }
+                    code = max + 1;// 在原先最大值上加1
+                }
+                permissionMap.put(code, listener);
+                ActivityCompat.requestPermissions(this, permissions, code);
+                return;
+            }
+        }
+        if (listener != null)
+            listener.permissionResult(true);
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        boolean isSuccess = true;
+        Log.d("PermissionUtil", "permissionResult: grantResults = " + Arrays.toString(grantResults));
+        for (int result : grantResults) {
+            if (result != PackageManager.PERMISSION_GRANTED) {
+                isSuccess = false;
+            }
+        }
+        if (permissionMap != null && permissionMap.keySet().contains(requestCode)) {
+            OnPermissionResultListener listener = permissionMap.get(requestCode);
+            if (listener != null)
+                listener.permissionResult(isSuccess);
+        }
+    }
+
+    // ======== 监听 ==========
     private OnActivityLifeListener lifeListener;
 
     public void setOnActivityLifeListener(OnActivityLifeListener lifeListener) {

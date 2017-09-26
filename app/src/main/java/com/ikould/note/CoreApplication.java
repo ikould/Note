@@ -1,17 +1,12 @@
 package com.ikould.note;
 
-import android.content.Context;
-import android.graphics.Typeface;
 import android.os.Environment;
 import android.os.Handler;
-import android.os.UserManager;
-import android.support.multidex.MultiDex;
 
 import com.ikould.frame.application.BaseApplication;
 import com.ikould.frame.config.BaseAppConfig;
 import com.ikould.frame.database.DbOpenHelper;
 import com.ikould.frame.utils.PLog;
-import com.ikould.frame.utils.PackageUtil;
 import com.ikould.frame.utils.PhoneTools;
 
 import java.util.concurrent.Executor;

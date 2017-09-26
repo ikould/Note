@@ -1,7 +1,6 @@
 package view;
 
 import android.content.Context;
-import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.Bitmap.CompressFormat;
 import android.graphics.Canvas;
@@ -10,11 +9,14 @@ import android.graphics.Paint;
 import android.graphics.Path;
 import android.graphics.PorterDuff;
 import android.graphics.PorterDuffXfermode;
-import android.net.Uri;
-import android.os.Environment;
+import android.support.annotation.Nullable;
+import android.util.AttributeSet;
 import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
+
+import com.ikould.frame.config.BaseAppConfig;
+import com.ikould.frame.utils.ScreenUtils;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -28,6 +30,7 @@ import java.util.List;
  * View实现涂鸦、撤销以及重做功能
  */
 public class GraffitiView extends View {
+
     private Context context;
     private Bitmap  mBitmap;
     private Canvas  mCanvas;
@@ -37,34 +40,48 @@ public class GraffitiView extends View {
     private float   mX, mY;// 临时点坐标
     private static final float TOUCH_TOLERANCE = 4;
     // 保存Path路径的集合  
-    private static List <DrawPath> savePath;
+    private static List<DrawPath> savePath;
     // 保存已删除Path路径的集合  
-    private static List <DrawPath> deletePath;
+    private static List<DrawPath> deletePath;
     // 记录Path路径的对象  
-    private        DrawPath        dp;
-    private        int             screenWidth, screenHeight;
+    private        DrawPath       dp;
+    private        int            screenWidth, screenHeight;
     private int currentColor = Color.RED;
     private int currentSize  = 5;
     private int currentStyle = 1;
-    private int[] paintColor;//颜色集合  
+    private int[] paintColor;//颜色集合
+
+    public GraffitiView(Context context) {
+        super(context);
+        init(context);
+    }
+
+    public GraffitiView(Context context, @Nullable AttributeSet attrs) {
+        super(context, attrs);
+        init(context);
+    }
+
+    public GraffitiView(Context context, @Nullable AttributeSet attrs, int defStyleAttr) {
+        super(context, attrs, defStyleAttr);
+        init(context);
+    }
 
     private class DrawPath {
         public Path  path;// 路径
         public Paint paint;// 画笔  
     }
 
-    public GraffitiView(Context context, int w, int h) {
-        super(context);
+    private void init(Context context) {
         this.context = context;
-        screenWidth = w;
-        screenHeight = h;
+        screenWidth = ScreenUtils.getScreenWidth(context);
+        screenHeight = ScreenUtils.getScreenHeight(context);
         paintColor = new int[]{
                 Color.RED, Color.BLUE, Color.GREEN, Color.YELLOW, Color.BLACK, Color.GRAY, Color.CYAN
         };
         setLayerType(LAYER_TYPE_SOFTWARE, null);//设置默认样式，去除dis-in的黑色方框以及clear模式的黑线效果
         initCanvas();
-        savePath = new ArrayList <DrawPath>();
-        deletePath = new ArrayList <DrawPath>();
+        savePath = new ArrayList<DrawPath>();
+        deletePath = new ArrayList<DrawPath>();
     }
 
     public void initCanvas() {
@@ -163,7 +180,7 @@ public class GraffitiView extends View {
                 Bitmap.Config.RGB_565); 
         mCanvas.setBitmap(mBitmap);// 重新设置画布，相当于清空画布*/
         initCanvas();
-        Iterator <DrawPath> iter = savePath.iterator();
+        Iterator<DrawPath> iter = savePath.iterator();
         while (iter.hasNext()) {
             DrawPath drawPath = iter.next();
             mCanvas.drawPath(drawPath.path, drawPath.paint);
@@ -220,33 +237,34 @@ public class GraffitiView extends View {
         SimpleDateFormat formatter = new SimpleDateFormat("yyyyMMddHHmmss");
         Date curDate = new Date(System.currentTimeMillis());//获取当前时间  
         String str = formatter.format(curDate) + "paint.png";
-        File file = new File("sdcard/" + str);
+        File file = new File(BaseAppConfig.TEMP_DIR + File.separator + str);
         FileOutputStream fos = null;
         try {
+            if (file.exists()) {
+                file.delete();
+            }
             fos = new FileOutputStream(file);
         } catch (Exception e) {
             e.printStackTrace();
         }
+        Log.d("GraffitiView", "saveToSDCard: fos = " + fos);
         mBitmap.compress(CompressFormat.PNG, 100, fos);
         //发送Sd卡的就绪广播,要不然在手机图库中不存在  
-        Intent intent = new Intent(Intent.ACTION_MEDIA_MOUNTED);
+       /* Intent intent = new Intent(Intent.ACTION_MEDIA_MOUNTED);
         intent.setData(Uri.fromFile(Environment.getExternalStorageDirectory()));
-        context.sendBroadcast(intent);
+        context.sendBroadcast(intent);*/
         Log.e("TAG", "图片已保存");
     }
 
     //以下为样式修改内容
     //设置画笔样式  
-    public void selectPaintStyle(int which) {
-        if (which == 0) {
-            currentStyle = 1;
-            setPaintStyle();
-        }
-        //当选择的是橡皮擦时，设置颜色为白色  
-        if (which == 1) {
+    public void togglePaintStyle() {
+        if (currentStyle == 1) {
             currentStyle = 2;
-            setPaintStyle();
+        } else {
+            currentStyle = 1;
         }
+        setPaintStyle();   //当选择的是橡皮擦时，设置颜色为白色
     }
 
     //选择画笔大小
